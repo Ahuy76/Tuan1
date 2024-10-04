@@ -12,14 +12,17 @@
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         tr:hover {
             background-color: #f5f5f5;
         }
@@ -30,8 +33,12 @@
     <table>
         <tr>
             <th>ID</th>
+            <th>Code</th> <!-- Added Code Column -->
             <th>Name</th>
+            <th>Category</th> <!-- Added Category Column -->
             <th>Brand</th>
+            <th>Type</th> <!-- Added Type Column -->
+            <th>Description</th> <!-- Added Description Column -->
         </tr>
         @if (Model != null && Model.Any())
         {
@@ -39,15 +46,19 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(m => product.Id)</td>
+                    <td>@Html.DisplayFor(m => product.Code)</td> <!-- Displaying Code -->
                     <td>@Html.DisplayFor(m => product.Name)</td>
+                    <td>@Html.DisplayFor(m => product.Category)</td> <!-- Displaying Category -->
                     <td>@Html.DisplayFor(m => product.Brand)</td>
+                    <td>@Html.DisplayFor(m => product.Type)</td> <!-- Displaying Type -->
+                    <td>@Html.DisplayFor(m => product.Description)</td> <!-- Displaying Description -->
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="3">No products available.</td>
+                <td colspan="7">No products available.</td> <!-- Adjusted colspan -->
             </tr>
         }
     </table>
