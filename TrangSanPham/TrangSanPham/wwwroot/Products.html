@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Danh sách sản phẩm</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Danh sách sản phẩm</h1>
+    <table id="products-table" border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mã</th>
+                <th>Tên</th>
+                <th>Danh mục</th>
+                <th>Thương hiệu</th>
+                <th>Loại</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        fetch('/products/all')
+            .then(response => response.json())
+            .then(products => {
+                let table = document.getElementById("products-table").getElementsByTagName('tbody')[0];
+                products.forEach(product => {
+                    let row = table.insertRow();
+                    row.insertCell(0).innerText = product.id;
+                    row.insertCell(1).innerText = product.code;
+                    row.insertCell(2).innerText = product.name;
+                    row.insertCell(3).innerText = product.category;
+                    row.insertCell(4).innerText = product.brand;
+                    row.insertCell(5).innerText = product.type;
+                    row.insertCell(6).innerText = product.description;
+                });
+            });
+    </script>
+</body>
+</html>
