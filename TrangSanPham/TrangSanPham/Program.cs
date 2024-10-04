@@ -1,28 +1,23 @@
-using Microsoft.EntityFrameworkCore; // Th�m using cho EF Core
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using TrangSanPham.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Th�m chu?i k?t n?i trong file appsettings.json
-// (B?n c?n ??m b?o r?ng b?n ?� c� chu?i k?t n?i nh? sau trong appsettings.json)
-// "ConnectionStrings": {
-//     "DefaultConnection": "Server=your_server;Database=your_database;User=your_user;Password=your_password;"
-// }
+// Thêm dịch vụ vào container
+builder.Services.AddDbContext<ProductContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Đảm bảo sử dụng UseSqlServer
 
 builder.Services.AddControllersWithViews();
 
-// C?u h�nh DbContext
-builder.Services.AddDbContext<ProductContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-    new MySqlServerVersion(new Version(8, 0, 21)))); // ??i v?i MySQL
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Cấu hình pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
