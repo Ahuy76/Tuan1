@@ -9,27 +9,31 @@ namespace TrangSanPham.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
 
-        // Constructor accepts DbContext
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
-            _context = context; // Store DbContext for database access
+            _context = context;
         }
 
-        // Index action to get the list of products from the database
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int pageSize = 5)
         {
-            // Retrieve all products from the product table
-            var products = _context.Product.ToList(); // Use Product here
+            var products = _context.Product
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-            // Pass the list of products to the view
+            var totalProducts = _context.Product.Count();
+            var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
             return View(products);
         }
+    
 
-        public IActionResult Privacy()
+    public IActionResult Privacy()
         {
             return View();
         }

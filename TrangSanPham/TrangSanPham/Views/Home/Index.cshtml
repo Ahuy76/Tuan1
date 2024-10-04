@@ -26,6 +26,15 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+            .pagination button {
+                padding: 10px 15px;
+                margin: 0 5px;
+            }
     </style>
 </head>
 <body>
@@ -33,12 +42,12 @@
     <table>
         <tr>
             <th>ID</th>
-            <th>Code</th> <!-- Added Code Column -->
+            <th>Code</th>
             <th>Name</th>
-            <th>Category</th> <!-- Added Category Column -->
+            <th>Category</th>
             <th>Brand</th>
-            <th>Type</th> <!-- Added Type Column -->
-            <th>Description</th> <!-- Added Description Column -->
+            <th>Type</th>
+            <th>Description</th>
         </tr>
         @if (Model != null && Model.Any())
         {
@@ -46,21 +55,37 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(m => product.Id)</td>
-                    <td>@Html.DisplayFor(m => product.Code)</td> <!-- Displaying Code -->
+                    <td>@Html.DisplayFor(m => product.Code)</td>
                     <td>@Html.DisplayFor(m => product.Name)</td>
-                    <td>@Html.DisplayFor(m => product.Category)</td> <!-- Displaying Category -->
+                    <td>@Html.DisplayFor(m => product.Category)</td>
                     <td>@Html.DisplayFor(m => product.Brand)</td>
-                    <td>@Html.DisplayFor(m => product.Type)</td> <!-- Displaying Type -->
-                    <td>@Html.DisplayFor(m => product.Description)</td> <!-- Displaying Description -->
+                    <td>@Html.DisplayFor(m => product.Type)</td>
+                    <td>@Html.DisplayFor(m => product.Description)</td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="7">No products available.</td> <!-- Adjusted colspan -->
+                <td colspan="7">No products available.</td>
             </tr>
         }
     </table>
+
+    <div class="pagination">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <button onclick="location.href='?page=1'">First</button>
+            <button onclick="location.href='?page=@(ViewBag.CurrentPage - 1)'">Previous</button>
+        }
+
+        <span>Page @ViewBag.CurrentPage of @ViewBag.TotalPages</span>
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <button onclick="location.href='?page=@(ViewBag.CurrentPage + 1)'">Next</button>
+            <button onclick="location.href='?page=@ViewBag.TotalPages'">Last</button>
+        }
+    </div>
 </body>
 </html>
