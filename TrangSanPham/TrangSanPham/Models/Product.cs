@@ -1,16 +1,36 @@
-﻿namespace TrangSanPham.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProductsAPI.Models
 {
     public class Product
     {
+        [Key]
         public int Id { get; set; }
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Category { get; set; }
-        public string Brand { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
+
+        [Required]
+        [StringLength(9)]
+        public string Code { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(90)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(28)]
+        public string Category { get; set; } = string.Empty;
+
+        [StringLength(28)]
+        public string? Brand { get; set; }
+
+        [StringLength(21)]
+        public string? Type { get; set; }
+
+        [StringLength(180)]
+        public string? Description { get; set; }
+
         public DateTime CreatedAt { get; set; }
+
         public DateTime UpdatedAt { get; set; }
     }
-
 }

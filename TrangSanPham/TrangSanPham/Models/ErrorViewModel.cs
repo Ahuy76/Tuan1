@@ -1,4 +1,4 @@
-namespace TrangSanPham.Models
+namespace ProductsAPI.Models
 {
     public class ErrorViewModel
     {
