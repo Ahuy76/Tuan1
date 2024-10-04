@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProductsAPI.Data;
 using ProductsAPI.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ProductsAPI.Controllers
 {
@@ -24,7 +25,7 @@ namespace ProductsAPI.Controllers
         {
             try
             {
-                var products = await _context.Products.ToListAsync();
+                var products = await _context.Product.ToListAsync(); // Ensure it's the correct DbSet
                 return Ok(products);
             }
             catch (Exception ex)
@@ -40,7 +41,7 @@ namespace ProductsAPI.Controllers
         {
             try
             {
-                var product = await _context.Products.FindAsync(id);
+                var product = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
 
                 if (product == null)
                 {
@@ -65,7 +66,7 @@ namespace ProductsAPI.Controllers
                 product.CreatedAt = DateTime.UtcNow;
                 product.UpdatedAt = DateTime.UtcNow;
 
-                _context.Products.Add(product);
+                await _context.Product.AddAsync(product); // Ensure it's the correct DbSet
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
@@ -93,7 +94,7 @@ namespace ProductsAPI.Controllers
 
             try
             {
-                var existingProduct = await _context.Products.FindAsync(id);
+                var existingProduct = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
                 if (existingProduct == null)
                 {
                     return NotFound($"Product with ID {id} not found");
@@ -129,13 +130,13 @@ namespace ProductsAPI.Controllers
         {
             try
             {
-                var product = await _context.Products.FindAsync(id);
+                var product = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
                 if (product == null)
                 {
                     return NotFound($"Product with ID {id} not found");
                 }
 
-                _context.Products.Remove(product);
+                _context.Product.Remove(product); // Ensure it's the correct DbSet
                 await _context.SaveChangesAsync();
 
                 return NoContent();
@@ -153,7 +154,7 @@ namespace ProductsAPI.Controllers
         {
             try
             {
-                var products = await _context.Products.ToListAsync();
+                var products = await _context.Product.ToListAsync(); // Ensure it's the correct DbSet
                 var html = GenerateHtml(products);
                 return Content(html, "text/html");
             }

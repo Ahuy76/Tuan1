@@ -29,8 +29,11 @@ namespace ProductsAPI.Models
         [StringLength(180)]
         public string? Description { get; set; }
 
+        [Column("created_at")] // Map to the database column
         public DateTime CreatedAt { get; set; }
 
+        [Column("updated_at")] // Map to the database column
         public DateTime UpdatedAt { get; set; }
+
     }
 }

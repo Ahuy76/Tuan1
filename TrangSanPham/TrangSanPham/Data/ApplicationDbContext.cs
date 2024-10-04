@@ -10,21 +10,21 @@ namespace ProductsAPI.Data
         {
         }
 
-        public DbSet<Product> Products { get; set; } = null!;
+        // Change the DbSet name to Product to match the table name
+        public DbSet<Product> Product { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>(entity =>
-            {
-                entity.HasIndex(e => e.Code).IsUnique();
+            modelBuilder.Entity<Product>()
+                .ToTable("product") // Specify the actual table name
+                .HasIndex(e => e.Code).IsUnique();
 
-                // Set default values for timestamps
-                entity.Property(e => e.CreatedAt)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            // Set default values for timestamps
+            modelBuilder.Entity<Product>().Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                entity.Property(e => e.UpdatedAt)
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            });
+            modelBuilder.Entity<Product>().Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }
