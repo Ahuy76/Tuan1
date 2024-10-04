@@ -1,24 +1,39 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using ProductsAPI.Data;  // Ensure this namespace is added
+using ProductsAPI.Models; // Ensure this namespace is added
 using System.Diagnostics;
-using TrangSanPham.Models;
+using System.Linq;
 
 namespace TrangSanPham.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int pageSize = 5)
         {
-            return View();
-        }
+            var products = _context.Product
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
-        public IActionResult Privacy()
+            var totalProducts = _context.Product.Count();
+            var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View(products);
+        }
+    
+
+    public IActionResult Privacy()
         {
             return View();
         }

@@ -1,35 +1,69 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using TrangSanPham.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using ProductsAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Thêm dịch vụ vào container
-builder.Services.AddDbContext<ProductContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // Đảm bảo sử dụng UseSqlServer
+// Add services to the container.
+builder.Services.AddControllersWithViews(); // This adds MVC support, including TempData.
+builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddControllersWithViews();
+// Add Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "TrangSanPham API",
+        Version = "v1",
+        Description = "API for managing products"
+    });
+});
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policyBuilder =>
+        {
+            policyBuilder.AllowAnyOrigin()
+                         .AllowAnyMethod()
+                         .AllowAnyHeader();
+        });
+});
+
+// Add DB Context
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseSqlServer(connectionString);
+});
 
 var app = builder.Build();
 
-// Cấu hình pipeline
-if (!app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrangSanPham API V1");
+        c.RoutePrefix = string.Empty; // Makes Swagger UI available at the root of the app
+    });
 }
 
+// Enable HTTPS redirection
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+// Enable CORS for all origins
+app.UseCors("AllowAll");
 
-app.UseRouting();
-
+// Enable Authorization Middleware
 app.UseAuthorization();
 
+// Map Controllers
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Run the app
 app.Run();

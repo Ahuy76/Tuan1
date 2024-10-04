@@ -1,108 +1,239 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TrangSanPham.Data;
-using TrangSanPham.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ProductsAPI.Data;
+using ProductsAPI.Models;
+using Microsoft.Extensions.Logging;
 
-namespace TrangSanPham.Controllers
+namespace ProductsAPI.Controllers
 {
-    [Route("products")]
     [ApiController]
-    public class ProductsController : Controller // Kế thừa từ Controller thay vì ControllerBase
+    [Route("[controller]")]
+    public class ProductsController : ControllerBase
     {
-        private readonly ProductContext _context;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ProductContext context)
+        public ProductsController(ApplicationDbContext context, ILogger<ProductsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // GET /products/all: trả về tất cả dữ liệu có trong bảng “product”
+        // GET: /products/all
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
-            return await _context.Products.ToListAsync();
-        }
-
-        // GET /products/{product_id}: trả về dữ liệu của record có id tương ứng trong bảng
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProductById(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var products = await _context.Product.ToListAsync(); // Ensure it's the correct DbSet
+                return Ok(products);
             }
-            return product;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all products");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // POST /products: tạo một record mới và lưu vào bảng “product”
+        // GET: /products/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            try
+            {
+                var product = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
+
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {id} not found");
+                }
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product {Id}", id);
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // POST: /products
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+            try
+            {
+                product.CreatedAt = DateTime.UtcNow;
+                product.UpdatedAt = DateTime.UtcNow;
+
+                await _context.Product.AddAsync(product); // Ensure it's the correct DbSet
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Error creating product");
+                return StatusCode(500, "Error creating product. The product code might be duplicate.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // PUT /products/{product_id}: chỉnh sửa record có id tương ứng trong bảng
+        // PUT: /products/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, Product product)
         {
             if (id != product.Id)
             {
-                return BadRequest();
+                return BadRequest("ID mismatch");
             }
-
-            _context.Entry(product).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
+                var existingProduct = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
+                if (existingProduct == null)
                 {
-                    return NotFound();
+                    return NotFound($"Product with ID {id} not found");
                 }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                // Update properties
+                existingProduct.Code = product.Code;
+                existingProduct.Name = product.Name;
+                existingProduct.Category = product.Category;
+                existingProduct.Brand = product.Brand;
+                existingProduct.Type = product.Type;
+                existingProduct.Description = product.Description;
+                existingProduct.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogError(ex, "Concurrency error updating product {Id}", id);
+                return StatusCode(500, "Concurrency error occurred");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating product {Id}", id);
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        // DELETE /products/{product_id}: xoá record có id tương ứng trong bảng
+        // DELETE: /products/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _context.Product.FindAsync(id); // Ensure it's the correct DbSet
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {id} not found");
+                }
+
+                _context.Product.Remove(product); // Ensure it's the correct DbSet
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting product {Id}", id);
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        // GET: /products/view
+        [HttpGet("view")]
+        public async Task<IActionResult> GetProductsView()
+        {
+            try
+            {
+                var products = await _context.Product.ToListAsync(); // Ensure it's the correct DbSet
+                var html = GenerateHtml(products);
+                return Content(html, "text/html");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating products view");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        private string GenerateHtml(List<Product> products)
+        {
+            var html = @"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Products List</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    h1 { color: #333; }
+                    table { 
+                        border-collapse: collapse; 
+                        width: 100%;
+                        margin-top: 20px;
+                    }
+                    th, td { 
+                        border: 1px solid #ddd; 
+                        padding: 12px 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #f4f4f4; 
+                        color: #333;
+                    }
+                    tr:nth-child(even) { 
+                        background-color: #f9f9f9; 
+                    }
+                    tr:hover {
+                        background-color: #f5f5f5;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Products List</h1>
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Brand</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                    </tr>";
+
+            foreach (var product in products)
+            {
+                html += $@"
+                    <tr>
+                        <td>{product.Id}</td>
+                        <td>{product.Code}</td>
+                        <td>{product.Name}</td>
+                        <td>{product.Category}</td>
+                        <td>{product.Brand}</td>
+                        <td>{product.Type}</td>
+                        <td>{product.Description}</td>
+                        <td>{product.CreatedAt:yyyy-MM-dd HH:mm:ss}</td>
+                        <td>{product.UpdatedAt:yyyy-MM-dd HH:mm:ss}</td>
+                    </tr>";
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+            html += @"
+                </table>
+            </body>
+            </html>";
 
-        // GET /products/display: trả về một trang web html tĩnh để hiển thị các data có trong bảng products
-        [HttpGet("display")]
-        public IActionResult GetProductsHtml()
-        {
-            var products = _context.Products.ToList(); // Lấy tất cả sản phẩm
-            return View(products); // Trả về View với danh sách sản phẩm
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.Id == id);
+            return html;
         }
     }
 }
