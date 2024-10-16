@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "D:\\MeUSolution\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj": {}
+    "E:\\Thuctap\\Tuan1\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj": {}
   },
   "projects": {
-    "D:\\MeUSolution\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj": {
+    "E:\\Thuctap\\Tuan1\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\MeUSolution\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj",
+        "projectUniqueName": "E:\\Thuctap\\Tuan1\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj",
         "projectName": "TrangSanPham",
-        "projectPath": "D:\\MeUSolution\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj",
-        "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-        "outputPath": "D:\\MeUSolution\\TrangSanPham\\TrangSanPham\\obj\\",
+        "projectPath": "E:\\Thuctap\\Tuan1\\TrangSanPham\\TrangSanPham\\TrangSanPham.csproj",
+        "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
+        "outputPath": "E:\\Thuctap\\Tuan1\\TrangSanPham\\TrangSanPham\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -34,6 +39,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -82,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }

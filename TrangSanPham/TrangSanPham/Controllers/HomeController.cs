@@ -16,24 +16,35 @@ namespace TrangSanPham.Controllers
             _context = context;
         }
 
-        public IActionResult Index(int page = 1, int pageSize = 5)
+        public IActionResult Index(string searchQuery, int page = 1, int pageSize = 5)
         {
-            var products = _context.Product
+            // Truy vấn danh sách sản phẩm
+            var products = from p in _context.Product
+                           select p;
+
+            // Nếu có từ khóa tìm kiếm, lọc danh sách sản phẩm
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                products = products.Where(p => p.Name.Contains(searchQuery) || p.Description.Contains(searchQuery));
+                ViewBag.CurrentSearchQuery = searchQuery; // Giữ lại từ khóa tìm kiếm
+            }
+
+            // Phân trang
+            var totalProducts = products.Count();
+            var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
+            var productsToDisplay = products
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
-            var totalProducts = _context.Product.Count();
-            var totalPages = (int)Math.Ceiling((double)totalProducts / pageSize);
-
+            // Truyền thông tin phân trang vào ViewBag
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
 
-            return View(products);
+            return View(productsToDisplay);
         }
-    
 
-    public IActionResult Privacy()
+        public IActionResult Privacy()
         {
             return View();
         }
@@ -45,3 +56,4 @@ namespace TrangSanPham.Controllers
         }
     }
 }
+
